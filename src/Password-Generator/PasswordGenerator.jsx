@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-const PasswordGenerator = () => {
-  const [lenght, setLenght] = useState(8);
+
+function PasswordGeneratorApp() {
+  const [length, setLength] = useState(8);
   const [numberAllowed, setNumberAllowed] = useState(false);
   const [charAllowed, setCharAllowed] = useState(false);
   const [password, setPassword] = useState("");
-  const copyInput = useRef(null);
-  const generator = useCallback(() => {
+
+  //useRef hook
+  const passwordRef = useRef(null);
+
+  const passwordGenerator = useCallback(() => {
     let pass = "";
     let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     if (numberAllowed) str += "0123456789";
@@ -17,62 +21,75 @@ const PasswordGenerator = () => {
     }
 
     setPassword(pass);
-  }, [numberAllowed, charAllowed, setPassword]);
+  }, [length, numberAllowed, charAllowed, setPassword]);
+
+  const copyPasswordToClipboard = useCallback(() => {
+    passwordRef.current?.select();
+    passwordRef.current?.setSelectionRange(0, 999);
+    window.navigator.clipboard.writeText(password);
+  }, [password]);
 
   useEffect(() => {
-    generator();
-  }, [charAllowed, numberAllowed, lenght, generator]);
-
+    passwordGenerator();
+  }, [length, numberAllowed, charAllowed, passwordGenerator]);
   return (
-    <div className="w-full max-w-md m-auto p-4s">
-      <h1 className="text-center font-semibold mt-10 text-2xl">
-        Password Generator
-      </h1>
-      <br />
-      <div className="flex justify-center">
+    <div className="w-full max-w-md mx-auto shadow-md rounded-lg px-4 py-3 my-8 bg-gray-800 text-orange-500">
+      <h1 className="text-white text-center my-3">Password generator</h1>
+      <div className="flex shadow rounded-lg overflow-hidden mb-4">
         <input
-          className="w-full p-4 text-white bg-gray-500 rounded-tl-lg rounded-bl-lg font-medium text-lg text-center z-10 inset-2"
-          value={password}
           type="text"
-          placeholder="password"
+          value={password}
+          className="outline-none w-full py-1 px-3"
+          placeholder="Password"
           readOnly
+          ref={passwordRef}
         />
         <button
-          className="bg-orange-500 p-4 text-lg rounded-tr-lg rounded-br-lg  "
-          onClick={copyOnClipBoard}
+          onClick={copyPasswordToClipboard}
+          className="outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0"
         >
-          Copy
+          copy
         </button>
       </div>
-      <div className="flex align-middle gap-2 text-orange-500 font-semibold">
-        <input
-          className="cursor-pointer"
-          type="range"
-          min={6}
-          max={40}
-          value={length}
-          onChange={(e) => {
-            setLenght(e.target.value);
-          }}
-        />
-        <label htmlFor="rangeInNumber">Lenght : {lenght}</label>
-        <input
-          type="checkbox"
-          defaultChecked={charAllowed}
-          onChange={() => setCharAllowed((prev) => !prev)}
-        />
-        <label>Number</label>
-        <input
-          type="checkbox"
-          defaultChecked={numberAllowed}
-          onChange={() => {
-            setNumberAllowed((prev) => !prev);
-          }}
-        />
-        <label>Esp-Characters</label>
+      <div className="flex text-sm gap-x-2">
+        <div className="flex items-center gap-x-1">
+          <input
+            type="range"
+            min={6}
+            max={100}
+            value={length}
+            className="cursor-pointer"
+            onChange={(e) => {
+              setLength(e.target.value);
+            }}
+          />
+          <label>Length: {length}</label>
+        </div>
+        <div className="flex items-center gap-x-1">
+          <input
+            type="checkbox"
+            defaultChecked={numberAllowed}
+            id="numberInput"
+            onChange={() => {
+              setNumberAllowed((prev) => !prev);
+            }}
+          />
+          <label htmlFor="numberInput">Numbers</label>
+        </div>
+        <div className="flex items-center gap-x-1">
+          <input
+            type="checkbox"
+            defaultChecked={charAllowed}
+            id="characterInput"
+            onChange={() => {
+              setCharAllowed((prev) => !prev);
+            }}
+          />
+          <label htmlFor="characterInput">Characters</label>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export default PasswordGenerator;
+export default PasswordGeneratorApp;
